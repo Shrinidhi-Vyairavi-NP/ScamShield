@@ -1,6 +1,6 @@
 {
-  "name": "ShieldScam AI - Fraudulent SMS & Email Detection",
-  "description": "AI-powered scam detection platform (Bitdefender/Scamio style) with multilingual zero-day intent reasoning, explainability, context matching, live scam radar, personalized risk profiling, and app/extension download hub.",
+  "name": "ScramAway AI - Fraud & Phishing Scam Detection",
+  "description": "AI-powered scam detection platform with multilingual zero-day intent reasoning, explainability, context matching, live scam radar, personalized risk profiling, and high-contrast accessible design.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

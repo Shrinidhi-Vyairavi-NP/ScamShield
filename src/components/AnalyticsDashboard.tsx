@@ -4,11 +4,24 @@ import {
   PieChart as PieIcon, TrendingUp, Calendar, FileText, ArrowUpRight
 } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from 'recharts';
-import { DetectionHistoryItem } from '../types';
+import { DetectionHistoryItem, ThemeMode, LanguageOption } from '../types';
+import { t } from '../lib/i18n';
+import { Tooltip as TermTooltip, FRAUD_GLOSSARY } from './Tooltip';
 
-export const AnalyticsDashboard: React.FC = () => {
+interface AnalyticsDashboardProps {
+  themeMode?: ThemeMode;
+  selectedLanguage?: LanguageOption;
+}
+
+export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ 
+  themeMode = 'dark',
+  selectedLanguage = 'english'
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+
+  const isDark = themeMode === 'dark';
+  const lang = selectedLanguage as LanguageOption;
 
   // Mock telemetry data for charts
   const weeklyTrends = [
@@ -84,7 +97,7 @@ export const AnalyticsDashboard: React.FC = () => {
 
   const handleDownloadReport = () => {
     const jsonReport = JSON.stringify({
-      generatedBy: "ShieldScam AI Threat Intelligence",
+      generatedBy: "ScramAway AI Threat Intelligence",
       timestamp: new Date().toISOString(),
       summaryStats: {
         totalScansCompleted: 14820,
@@ -98,7 +111,7 @@ export const AnalyticsDashboard: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ShieldScam_Incident_Report_${Date.now()}.json`;
+    a.download = `ScramAway_Incident_Report_${Date.now()}.json`;
     a.click();
 
     setDownloadSuccess(true);
@@ -114,62 +127,80 @@ export const AnalyticsDashboard: React.FC = () => {
     <div className="space-y-6">
       
       {/* Header Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className={`border rounded-2xl p-6 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors ${
+        isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'
+      }`}>
         <div>
-          <div className="inline-flex items-center space-x-2 bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 rounded-full text-cyan-300 text-xs font-bold mb-2">
+          <div className={`inline-flex items-center space-x-2 border px-3 py-1 rounded-full text-xs font-bold mb-2 ${
+            isDark ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : 'bg-blue-50 border-blue-200 text-blue-800'
+          }`}>
             <BarChart3 className="w-3.5 h-3.5" />
             <span>GLOBAL THREAT METRICS & DETECTION LOGS</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-white">
-            Analytics & Cyber Incident History
+          <h1 className="text-2xl font-black">
+            {t('analyticsTitle', lang)}
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Real-time telemetry, channel breakdown, and exportable forensic incident logs for cybersecurity compliance.
+          <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+            {t('analyticsSubtitle', lang)}
           </p>
         </div>
 
         <button
           onClick={handleDownloadReport}
-          className="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg shadow-cyan-500/20 flex items-center space-x-2 cursor-pointer transition-all"
+          className={`px-5 py-2.5 font-extrabold text-xs rounded-xl shadow-md flex items-center space-x-2 cursor-pointer transition-all ${
+            isDark 
+              ? 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-cyan-500/20' 
+              : 'bg-blue-700 hover:bg-blue-800 text-white'
+          }`}
         >
           <Download className="w-4 h-4" />
-          <span>{downloadSuccess ? 'REPORT DOWNLOADED!' : 'EXPORT INCIDENT REPORT'}</span>
+          <span>{downloadSuccess ? 'REPORT DOWNLOADED!' : t('exportReportBtn', lang)}</span>
         </button>
       </div>
 
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-lg space-y-1">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">TOTAL MESSAGES SCANNED</span>
-          <div className="text-3xl font-extrabold text-white font-mono">14,820</div>
-          <span className="text-[10px] text-emerald-400 flex items-center space-x-1 font-semibold">
+        <div className={`border p-5 rounded-2xl shadow-md space-y-1 ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+        }`}>
+          <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{t('totalScanned', lang)}</span>
+          <div className={`text-3xl font-black font-mono ${isDark ? 'text-white' : 'text-slate-900'}`}>14,820</div>
+          <span className={`text-[10px] flex items-center space-x-1 font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>
             <TrendingUp className="w-3 h-3" />
             <span>+24% vs last week</span>
           </span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-lg space-y-1">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">SCAMS BLOCKED</span>
-          <div className="text-3xl font-extrabold text-rose-400 font-mono">11,420</div>
-          <span className="text-[10px] text-rose-400 flex items-center space-x-1 font-semibold">
+        <div className={`border p-5 rounded-2xl shadow-md space-y-1 ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+        }`}>
+          <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{t('scamsBlocked', lang)}</span>
+          <div className="text-3xl font-black text-rose-500 font-mono">11,420</div>
+          <span className="text-[10px] text-rose-600 dark:text-rose-400 flex items-center space-x-1 font-bold">
             <ShieldAlert className="w-3 h-3" />
             <span>77.0% High Threat Rate</span>
           </span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-lg space-y-1">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">ZERO-DAY CATCH RATE</span>
-          <div className="text-3xl font-extrabold text-cyan-400 font-mono">99.4%</div>
-          <span className="text-[10px] text-cyan-400 font-semibold">
-            Gemini 3.6 Multilingual Reasoning
+        <div className={`border p-5 rounded-2xl shadow-md space-y-1 ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+        }`}>
+          <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+            <TermTooltip term={t('zeroDayCatchRate', lang)} content={FRAUD_GLOSSARY.zeroDay.definition} />
+          </span>
+          <div className={`text-3xl font-black font-mono ${isDark ? 'text-cyan-400' : 'text-blue-700'}`}>99.4%</div>
+          <span className={`text-[10px] font-bold ${isDark ? 'text-cyan-400' : 'text-blue-700'}`}>
+            Gemini 2.5 Multilingual Reasoning
           </span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-lg space-y-1">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">AVG SCAN LATENCY</span>
-          <div className="text-3xl font-extrabold text-emerald-400 font-mono">120 ms</div>
-          <span className="text-[10px] text-emerald-400 font-semibold">
-            Sub-second Zero-Retention Inference
+        <div className={`border p-5 rounded-2xl shadow-md space-y-1 ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+        }`}>
+          <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{t('avgScanLatency', lang)}</span>
+          <div className={`text-3xl font-black font-mono ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>120 ms</div>
+          <span className={`text-[10px] font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>
+            Sub-second <TermTooltip term="Zero-Retention" content={FRAUD_GLOSSARY.zeroRetention.definition} /> Inference
           </span>
         </div>
       </div>
@@ -178,19 +209,23 @@ export const AnalyticsDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Weekly Threat Velocity Bar Chart */}
-        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4 text-cyan-400" />
+        <div className={`lg:col-span-2 border rounded-2xl p-6 shadow-md space-y-4 ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+        }`}>
+          <h2 className={`text-sm font-extrabold uppercase tracking-wider flex items-center space-x-2 ${
+            isDark ? 'text-white' : 'text-slate-900'
+          }`}>
+            <TrendingUp className={`w-4 h-4 ${isDark ? 'text-cyan-400' : 'text-blue-700'}`} />
             <span>Weekly Scam Volume Trends by Channel</span>
           </h2>
 
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weeklyTrends}>
-                <XAxis dataKey="day" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} />
+                <XAxis dataKey="day" stroke={isDark ? '#64748b' : '#475569'} fontSize={11} />
+                <YAxis stroke={isDark ? '#64748b' : '#475569'} fontSize={11} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '12px' }}
+                  contentStyle={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', borderColor: isDark ? '#334155' : '#cbd5e1', borderRadius: '12px', fontSize: '12px' }}
                 />
                 <Bar dataKey="sms" name="SMS" fill="#38bdf8" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="whatsapp" name="WhatsApp" fill="#34d399" radius={[4, 4, 0, 0]} />
@@ -202,9 +237,13 @@ export const AnalyticsDashboard: React.FC = () => {
         </div>
 
         {/* Channel Distribution Pie Chart */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-            <PieIcon className="w-4 h-4 text-cyan-400" />
+        <div className={`border rounded-2xl p-6 shadow-md space-y-4 ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+        }`}>
+          <h2 className={`text-sm font-extrabold uppercase tracking-wider flex items-center space-x-2 ${
+            isDark ? 'text-white' : 'text-slate-900'
+          }`}>
+            <PieIcon className={`w-4 h-4 ${isDark ? 'text-cyan-400' : 'text-blue-700'}`} />
             <span>Channel Vector Share</span>
           </h2>
 
@@ -225,7 +264,7 @@ export const AnalyticsDashboard: React.FC = () => {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '12px' }}
+                  contentStyle={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', borderColor: isDark ? '#334155' : '#cbd5e1', borderRadius: '12px', fontSize: '12px' }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -233,7 +272,9 @@ export const AnalyticsDashboard: React.FC = () => {
 
           <div className="space-y-1.5 pt-2">
             {channelDistribution.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between text-xs text-slate-300">
+              <div key={idx} className={`flex items-center justify-between text-xs font-semibold ${
+                isDark ? 'text-slate-300' : 'text-slate-700'
+              }`}>
                 <div className="flex items-center space-x-2">
                   <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></span>
                   <span>{item.name}</span>
@@ -247,10 +288,14 @@ export const AnalyticsDashboard: React.FC = () => {
       </div>
 
       {/* Detection History Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+      <div className={`border rounded-2xl p-6 shadow-md space-y-4 ${
+        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+      }`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-            <FileText className="w-4 h-4 text-cyan-400" />
+          <h2 className={`text-sm font-extrabold uppercase tracking-wider flex items-center space-x-2 ${
+            isDark ? 'text-white' : 'text-slate-900'
+          }`}>
+            <FileText className={`w-4 h-4 ${isDark ? 'text-cyan-400' : 'text-blue-700'}`} />
             <span>Recent Detection Log & Incident History</span>
           </h2>
 
@@ -261,15 +306,19 @@ export const AnalyticsDashboard: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search history..."
-              className="w-full bg-slate-950 text-slate-200 placeholder-slate-500 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:border-cyan-500 focus:outline-none"
+              className={`w-full border rounded-xl pl-8 pr-3 py-1.5 text-xs font-medium focus:outline-none ${
+                isDark ? 'bg-slate-950 text-slate-200 placeholder-slate-500 border-slate-800 focus:border-cyan-500' : 'bg-slate-50 text-slate-900 placeholder-slate-400 border-slate-300 focus:border-blue-600'
+              }`}
             />
           </div>
         </div>
 
         {/* History Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 font-mono uppercase text-[10px] border-b border-slate-800">
+          <table className={`w-full text-left text-xs ${isDark ? 'text-slate-300' : 'text-slate-800'}`}>
+            <thead className={`font-mono uppercase text-[10px] border-b ${
+              isDark ? 'bg-slate-950 text-slate-400 border-slate-800' : 'bg-slate-100 text-slate-700 border-slate-300 font-bold'
+            }`}>
               <tr>
                 <th className="p-3">ID & Date</th>
                 <th className="p-3">Vector</th>
@@ -279,32 +328,34 @@ export const AnalyticsDashboard: React.FC = () => {
                 <th className="p-3">Verdict</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className={`divide-y ${isDark ? 'divide-slate-800/60' : 'divide-slate-200'}`}>
               {filteredHistory.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-800/50 transition-colors">
-                  <td className="p-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">
-                    <div>{item.id}</div>
-                    <div className="text-[10px] text-slate-500">{item.date}</div>
+                <tr key={item.id} className={isDark ? 'hover:bg-slate-800/50' : 'hover:bg-slate-50'}>
+                  <td className={`p-3 font-mono text-[11px] whitespace-nowrap ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <div className="font-bold">{item.id}</div>
+                    <div className="text-[10px]">{item.date}</div>
                   </td>
                   <td className="p-3 uppercase font-bold text-[10px]">
-                    <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-cyan-300">
+                    <span className={`px-2 py-0.5 rounded border ${
+                      isDark ? 'bg-slate-800 border-slate-700 text-cyan-300' : 'bg-slate-100 border-slate-300 text-blue-900'
+                    }`}>
                       {item.channel}
                     </span>
                   </td>
-                  <td className="p-3 max-w-xs truncate font-mono text-slate-200">
+                  <td className={`p-3 max-w-xs truncate font-mono font-medium ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>
                     "{item.snippet}"
                   </td>
-                  <td className="p-3 font-mono text-slate-400">
+                  <td className={`p-3 font-mono ${isDark ? 'text-slate-400' : 'text-slate-700 font-semibold'}`}>
                     {item.language}
                   </td>
-                  <td className="p-3 font-mono font-bold text-rose-400">
+                  <td className="p-3 font-mono font-black text-rose-500">
                     {item.overallScore}/100
                   </td>
                   <td className="p-3">
-                    <span className={`px-2 py-0.5 text-[10px] font-extrabold uppercase rounded-full border ${
+                    <span className={`px-2 py-0.5 text-[10px] font-black uppercase rounded-full border ${
                       item.verdict === 'HIGH_RISK_MALICIOUS'
-                        ? 'bg-rose-950 text-rose-400 border-rose-500/50'
-                        : 'bg-emerald-950 text-emerald-400 border-emerald-500/50'
+                        ? 'bg-rose-100 text-rose-950 border-rose-400 dark:bg-rose-950 dark:text-rose-400 dark:border-rose-500/50'
+                        : 'bg-emerald-100 text-emerald-950 border-emerald-400 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-500/50'
                     }`}>
                       {item.verdict}
                     </span>
@@ -319,3 +370,4 @@ export const AnalyticsDashboard: React.FC = () => {
     </div>
   );
 };
+

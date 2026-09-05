@@ -1,5 +1,7 @@
 export type ScamChannel = 'sms' | 'email' | 'whatsapp' | 'call' | 'url';
 
+export type ThemeMode = 'dark' | 'light';
+
 export type LanguageOption = 
   | 'english' 
   | 'hindi' 
@@ -110,4 +112,32 @@ export interface DetectionHistoryItem {
   date: string;
   language: string;
   persona: UserPersona;
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  persona: UserPersona;
+  tier: 'FREE_SHIELD' | 'PRO_SHIELD' | 'ENTERPRISE';
+  avatarUrl?: string;
+  joinedDate: string;
+  totalScansPerformed: number;
+  alertsViaEmail?: boolean;
+  notificationEmail?: string;
+}
+
+export interface ComplaintTicket {
+  id: string;
+  ticketNumber: string;
+  category: string;
+  channel: ScamChannel | 'other';
+  amountLost?: number;
+  incidentDate: string;
+  suspectDetails: string;
+  description: string;
+  status: 'SUBMITTED' | 'UNDER_AI_REVIEW' | 'FORWARDED_TO_1930' | 'BANK_NOTIFIED' | 'RESOLVED';
+  createdAt: string;
+  officialRefNumber?: string;
 }
